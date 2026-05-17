@@ -1,85 +1,68 @@
 #include <stdio.h>
 #include <string.h>
 
-// Structure to store student details
-typedef struct
-{
-    char name[50];
-    int admissionNo;
-    int age;
-    float marks[3];
-    float average;
-    char grade;
+#define MAX_STUDENTS 100
 
+// Structure Definition
+typedef struct {
+    char name[50];
+    int admissionNo, age;
+    float marks[3], average;
+    char grade;
 } Student;
 
-
-void addStudent(Student list[], int *total);
-void displayStudent(Student list[], int total);
-void searchStudent(Student list[], int total);
-void updateStudent(Student list[], int total);
-void get_top_performer(Student list[], int total);
+// Function Prototypes
+void addStudent(Student students[], int *count);
+void displayStudents(Student students[], int count);
+void searchStudent(Student students[], int count);
+void updateStudent(Student students[], int count);
+void bestStudent(Student students[], int count);
 char calculateGrade(float avg);
 
 int main() {
-
-    int choice, total_records = 0;
-
-    // Array size for student database
-    Student database[100];
+    Student students[MAX_STUDENTS];
+    int studentCount = 0;
+    int choice;
 
     do {
-
-        // Main menu
         printf("\n===== STUDENT MANAGEMENT SYSTEM =====\n");
-        printf("1. Insert new record\n");
-        printf("2. View all records\n");
-        printf("3. Locate Student\n");
-        printf("4. Edit student marks\n");
-        printf("5. View Top scorer\n");
-        printf("6. Exit system\n");
+        printf("1. Add Student\n");
+        printf("2. Display Students\n");
+        printf("3. Search Student\n");
+        printf("4. Update Student\n");
+        printf("5. Best Performing Student\n");
+        printf("6. Exit\n");
         printf("Enter choice: ");
 
         scanf("%d", &choice);
 
-        // Validate menu choice
-        if(choice < 1 || choice > 6)
-        {
-            printf("Invalid input\n");
-            continue;
-        }
-
-        // Exit program
-        if (choice == 6) {
-            printf("Shutting down... Goodbye.\n");
-            break;
-        }
-
-        // Execute selected option
         switch (choice) {
-
             case 1:
-                addStudent(database, &total_records);
+                addStudent(students, &studentCount);
                 break;
 
             case 2:
-                displayStudent(database, total_records);
+                displayStudents(students, studentCount);
                 break;
 
             case 3:
-                searchStudent(database, total_records);
+                searchStudent(students, studentCount);
                 break;
 
             case 4:
-                updateStudent(database, total_records);
+                updateStudent(students, studentCount);
                 break;
 
             case 5:
-                get_top_performer(database, total_records);
+                bestStudent(students, studentCount);
+                break;
+
+            case 6:
+                printf("Exiting program... Goodbye!\n");
                 break;
 
             default:
-                printf("Invalid selection! Try again.\n");
+                printf("Invalid choice! Please select between 1 and 6.\n");
         }
 
     } while (choice != 6);
@@ -87,185 +70,166 @@ int main() {
     return 0;
 }
 
-// Determines student grade based on average marks
-char calculateGrade(float avgScore) {
-
-    if (avgScore >= 70.0) return 'A';
-    if (avgScore >= 60.0) return 'B';
-    if (avgScore >= 50.0) return 'C';
-    if (avgScore >= 40.0) return 'D';
-
-    return 'E';
+// Grade Calculation Function
+char calculateGrade(float avg) {
+    if (avg >= 70)
+        return 'A';
+    else if (avg >= 60)
+        return 'B';
+    else if (avg >= 50)
+        return 'C';
+    else if (avg >= 40)
+        return 'D';
+    else
+        return 'E';
 }
 
-// Adds a new student record
-void addStudent(Student list[], int *total) {
+// Function to Add Student
+void addStudent(Student students[], int *count) {
 
-    // Prevent exceeding array size
-    if (*total >= 100) {
-        printf("Database limit reached.\n");
+    if (*count >= MAX_STUDENTS) {
+        printf("System full! Cannot add more students.\n");
         return;
     }
 
-    // Pointer to current student position
-    Student *ptr = &list[*total];
+    Student *s = &students[*count];
 
-    printf("\nEnter Full Name: ");
+    printf("\nEnter Name: ");
+    scanf(" %[^\n]", s->name);
 
+    printf("Enter Admission Number: ");
+    scanf("%d", &s->admissionNo);
 
-    getchar();
+    printf("Enter Age: ");
+    scanf("%d", &s->age);
 
-    fgets((*ptr).name, 50, stdin);
+    float total = 0;
 
-
-    (*ptr).name[strcspn((*ptr).name, "\n")] = 0;
-
-    printf("Enter Admission No: ");
-    scanf("%d", &(*ptr).admissionNo);
-
-    printf("Enter Student Age: ");
-    scanf("%d", &(*ptr).age);
-
-    float sum = 0.0;
-
-    // Input marks for 3 units
     for (int i = 0; i < 3; i++) {
-
-        printf("Enter Score for Unit %d: ", i + 1);
-        scanf("%f", &(*ptr).marks[i]);
-
-        sum += (*ptr).marks[i];
+        printf("Enter Marks for Subject %d: ", i + 1);
+        scanf("%f", &s->marks[i]);
+        total += s->marks[i];
     }
 
-    // Calculate average and grade
-    (*ptr).average = sum / 3.0;
-    (*ptr).grade = calculateGrade((*ptr).average);
+    s->average = total / 3.0;
+    s->grade = calculateGrade(s->average);
 
-    // Increase total student count
-    (*total)++;
+    (*count)++;
 
-    printf("Record saved!\n");
+    printf("Student added successfully!\n");
 }
 
-// Diplays all stored student records
-void displayStudent(Student list[], int total) {
+// Function to Display Students
+void displayStudents(Student students[], int count) {
 
-    if (total == 0) {
-        printf("\nNo data stored yet.\n");
+    if (count == 0) {
+        printf("\nNo records found.\n");
         return;
     }
 
-    printf("\n--- REGISTERED STUDENTS ---");
+    for (int i = 0; i < count; i++) {
 
-    for (int i = 0; i < total; i++) {
-
-        printf("\nName: %s", list[i].name);
-        printf("\nAdmission Number: %d", list[i].admissionNo);
-        printf("\nAge: %d", list[i].age);
-        printf("\nAverage: %.2f", list[i].average);
-        printf("\nGrade: %c\n", list[i].grade);
-
-        printf("--------------------------");
+        printf("\nName: %s\n", students[i].name);
+        printf("Admission Number: %d\n", students[i].admissionNo);
+        printf("Age: %d\n", students[i].age);
+        printf("Average: %.2f\n", students[i].average);
+        printf("Grade: %c\n", students[i].grade);
+        printf("---------------------\n");
     }
 }
 
-// Serches for a student using admission numer
-void searchStudent(Student list[], int total) {
+// Function to Search Student
+void searchStudent(Student students[], int count) {
 
-    if (total == 0) {
-        printf("\nNo data to search.\n");
+    if (count == 0) {
+        printf("\nNo records available to search.\n");
         return;
     }
 
-    int targetId;
+    int searchAdmn;
 
-    printf("\nType Admission ID to find: ");
-    scanf("%d", &targetId);
+    printf("\nEnter Admission Number to search: ");
+    scanf("%d", &searchAdmn);
 
-    //search through database
-    for (int i = 0; i < total; i++) {
+    for (int i = 0; i < count; i++) {
 
-        if (list[i].admissionNo == targetId) {
+        if (students[i].admissionNo == searchAdmn) {
 
-            printf("\nMatch Found:");
-            printf("\nName: %s", list[i].name);
-            printf("\nAdmission Number: %d", list[i].admissionNo);
-            printf("\nAge: %d", list[i].age);
-            printf("\nAverage: %.2f", list[i].average);
-            printf("\nGrade: %c\n", list[i].grade);
+            printf("\nStudent Found!\n");
+            printf("Name: %s\n", students[i].name);
+            printf("Admission Number: %d\n", students[i].admissionNo);
+            printf("Age: %d\n", students[i].age);
+            printf("Average: %.2f\n", students[i].average);
+            printf("Grade: %c\n", students[i].grade);
 
             return;
         }
     }
 
-    printf("\nNo student matching ID %d found.\n", targetId);
+    printf("Student with Admission Number %d not found.\n", searchAdmn);
 }
 
-// Updates marks for a specific student
-void updateStudent(Student list[], int total) {
+// Function to Update Student
+void updateStudent(Student students[], int count) {
 
-    if (total == 0) {
-        printf("\nNo data to modify.\n");
+    if (count == 0) {
+        printf("\nNo records available to update.\n");
         return;
     }
 
-    int targetId;
+    int searchAdmn;
 
-    printf("\nType Admission ID to update: ");
-    scanf("%d", &targetId);
+    printf("\nEnter Admission Number to update: ");
+    scanf("%d", &searchAdmn);
 
-    for (int i = 0; i < total; i++) {
+    for (int i = 0; i < count; i++) {
 
-        if (list[i].admissionNo == targetId) {
+        if (students[i].admissionNo == searchAdmn) {
 
-            printf("\nModifying grades for %s\n", list[i].name);
+            printf("\nUpdating marks for %s...\n", students[i].name);
 
-            float sum = 0.0;
+            float total = 0;
 
-            // Input new marks
             for (int j = 0; j < 3; j++) {
 
-                printf("Enter new Score for Unit %d: ", j + 1);
-                scanf("%f", &list[i].marks[j]);
+                printf("Enter new Marks for Subject %d: ", j + 1);
+                scanf("%f", &students[i].marks[j]);
 
-                sum += list[i].marks[j];
+                total += students[i].marks[j];
             }
 
-            // Recalculate average and grade
-            list[i].average = sum / 3.0;
-            list[i].grade = calculateGrade(list[i].average);
+            students[i].average = total / 3.0;
+            students[i].grade = calculateGrade(students[i].average);
 
-            printf("Grades recalculated successfully.\n");
+            printf("Record updated successfully!\n");
 
             return;
         }
     }
 
-    printf("\nTarget ID not found.\n");
+    printf("Student not found.\n");
 }
 
-// Finds and displays the student with highest average
-void get_top_performer(Student list[], int total) {
+// Function to Find Best Student
+void bestStudent(Student students[], int count) {
 
-    if (total == 0) {
-        printf("\nNo records recorded.\n");
+    if (count == 0) {
+        printf("\nNo records available.\n");
         return;
     }
 
-    int top_index = 0;
+    int bestIdx = 0;
 
-    // Compare averages to locate highest scorer
-    for (int i = 1; i < total; i++) {
+    for (int i = 1; i < count; i++) {
 
-        if (list[i].average > list[top_index].average) {
-            top_index = i;
+        if (students[i].average > students[bestIdx].average) {
+            bestIdx = i;
         }
     }
 
-    printf("\n*** HIGHEST PERFORMER ***\n");
-
-    printf("Name: %s\n", list[top_index].name);
-    printf("Admission ID: %d\n", list[top_index].admissionNo);
-    printf("Mean Score: %.2f\n", list[top_index].average);
-    printf("Final Grade: %c\n", list[top_index].grade);
+    printf("\n--- Best Performing Student ---\n");
+    printf("Name: %s\n", students[bestIdx].name);
+    printf("Admission Number: %d\n", students[bestIdx].admissionNo);
+    printf("Average: %.2f\n", students[bestIdx].average);
+    printf("Grade: %c\n", students[bestIdx].grade);
 }
