@@ -6,17 +6,19 @@
 // Structure Definition
 typedef struct {
     char name[50];
-    int admissionNo, age;
-    float marks[3], average;
+    int admissionNo;
+    int age;
+    float marks[3];
+    float average;
     char grade;
 } Student;
 
 // Function Prototypes
-void addStudent(Student students[], int *count);
-void displayStudents(Student students[], int count);
-void searchStudent(Student students[], int count);
-void updateStudent(Student students[], int count);
-void bestStudent(Student students[], int count);
+int addStudent(Student students[], int *count);
+int displayStudents(Student students[], int count);
+int searchStudent(Student students[], int count);
+int updateStudent(Student students[], int count);
+int bestStudent(Student students[], int count);
 char calculateGrade(float avg);
 
 int main() {
@@ -34,7 +36,10 @@ int main() {
         printf("6. Exit\n");
         printf("Enter choice: ");
 
-        scanf("%d", &choice);
+        if (scanf("%d", &choice) != 1) {
+            printf("Invalid input. Please enter a number.\n");
+            continue;
+        }
 
         switch (choice) {
             case 1:
@@ -72,30 +77,33 @@ int main() {
 
 // Grade Calculation Function
 char calculateGrade(float avg) {
-    if (avg >= 70)
+    if (avg >= 70 && avg <= 100)
         return 'A';
-    else if (avg >= 60)
+    if (avg >= 60)
         return 'B';
-    else if (avg >= 50)
+    if (avg >= 50)
         return 'C';
-    else if (avg >= 40)
+    if (avg >= 40)
         return 'D';
-    else
-        return 'E';
+
+    return 'E';
 }
 
-// Function to Add Student
-void addStudent(Student students[], int *count) {
+// Add Student Function
+int addStudent(Student students[], int *count) {
 
     if (*count >= MAX_STUDENTS) {
         printf("System full! Cannot add more students.\n");
-        return;
+        return 0;
     }
 
     Student *s = &students[*count];
 
+    getchar();
+
     printf("\nEnter Name: ");
-    scanf(" %[^\n]", s->name);
+    fgets(s->name, 50, stdin);
+    s->name[strcspn(s->name, "\n")] = 0;
 
     printf("Enter Admission Number: ");
     scanf("%d", &s->admissionNo);
@@ -117,14 +125,16 @@ void addStudent(Student students[], int *count) {
     (*count)++;
 
     printf("Student added successfully!\n");
+
+    return 1;
 }
 
-// Function to Display Students
-void displayStudents(Student students[], int count) {
+// Display Students Function
+int displayStudents(Student students[], int count) {
 
     if (count == 0) {
         printf("\nNo records found.\n");
-        return;
+        return 0;
     }
 
     for (int i = 0; i < count; i++) {
@@ -136,14 +146,16 @@ void displayStudents(Student students[], int count) {
         printf("Grade: %c\n", students[i].grade);
         printf("---------------------\n");
     }
+
+    return 1;
 }
 
-// Function to Search Student
-void searchStudent(Student students[], int count) {
+// Search Student Function
+int searchStudent(Student students[], int count) {
 
     if (count == 0) {
         printf("\nNo records available to search.\n");
-        return;
+        return 0;
     }
 
     int searchAdmn;
@@ -162,19 +174,21 @@ void searchStudent(Student students[], int count) {
             printf("Average: %.2f\n", students[i].average);
             printf("Grade: %c\n", students[i].grade);
 
-            return;
+            return 1;
         }
     }
 
     printf("Student with Admission Number %d not found.\n", searchAdmn);
+
+    return 0;
 }
 
-// Function to Update Student
-void updateStudent(Student students[], int count) {
+// Update Student Function
+int updateStudent(Student students[], int count) {
 
     if (count == 0) {
         printf("\nNo records available to update.\n");
-        return;
+        return 0;
     }
 
     int searchAdmn;
@@ -203,19 +217,21 @@ void updateStudent(Student students[], int count) {
 
             printf("Record updated successfully!\n");
 
-            return;
+            return 1;
         }
     }
 
     printf("Student not found.\n");
+
+    return 0;
 }
 
-// Function to Find Best Student
-void bestStudent(Student students[], int count) {
+// Best Performing Student Function
+int bestStudent(Student students[], int count) {
 
     if (count == 0) {
         printf("\nNo records available.\n");
-        return;
+        return 0;
     }
 
     int bestIdx = 0;
@@ -232,4 +248,6 @@ void bestStudent(Student students[], int count) {
     printf("Admission Number: %d\n", students[bestIdx].admissionNo);
     printf("Average: %.2f\n", students[bestIdx].average);
     printf("Grade: %c\n", students[bestIdx].grade);
+
+    return 1;
 }
